@@ -85,7 +85,7 @@ services:
   web:
     build: https://github.com/petdono/petsittingsite.git
     ports:
-      - "8000:8000"
+      - "5000:5000"
     environment:
       - SECRET_KEY=your-super-secret-key-here-change-this
       - FLASK_ENV=production
@@ -95,22 +95,11 @@ services:
       - pet_sitting_data:/app
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
-
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - pet_sitting_data:/app:ro
-    depends_on:
-      - web
-    restart: unless-stopped
 
 volumes:
   pet_sitting_data:
@@ -128,8 +117,8 @@ volumes:
 
 ### Access Your Application
 - **Portainer**: https://your-server-ip:9443
-- **Pet Sitting Site**: http://your-server-ip
-- **Health Check**: http://your-server-ip/health
+- **Pet Sitting Site**: http://your-server-ip:5000
+- **Health Check**: http://your-server-ip:5000/health
 
 ## 🔄 Updates and Maintenance
 
@@ -180,7 +169,7 @@ volumes:
 ## 📊 Monitoring
 
 ### Health Checks
-- **Application**: http://your-domain/health
+- **Application**: http://your-domain:5000/health
 - **Container status**: Check in Portainer dashboard
 - **Resource usage**: Monitor in Portainer
 
