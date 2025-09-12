@@ -115,6 +115,12 @@ volumes:
 # Run: python init_db.py
 ```
 
+### Test Database Connection
+```bash
+# Test if database is working
+python test_db.py
+```
+
 ### Access Your Application
 - **Portainer**: https://your-server-ip:9443
 - **Pet Sitting Site**: http://your-server-ip:5000

@@ -19,6 +19,8 @@ def init_db():
     """Initialize the database"""
     with app.app_context():
         print("Creating database tables...")
+        # Ensure data directory exists
+        os.makedirs('/app/data', exist_ok=True)
         try:
             db.create_all()
             print("✅ Database tables created successfully!")

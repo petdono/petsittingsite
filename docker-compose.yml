@@ -8,7 +8,7 @@ services:
     environment:
       - FLASK_ENV=production
       - SECRET_KEY=your-super-secret-key-change-this-in-production
-      - SQLALCHEMY_DATABASE_URI=sqlite:///app/users.db
+      - SQLALCHEMY_DATABASE_URI=sqlite:////app/data/users.db
       - BASE_HOURLY_RATE=15.0
     volumes:
       - pet_sitting_data:/app

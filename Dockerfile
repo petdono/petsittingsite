@@ -25,7 +25,7 @@ RUN useradd --create-home --shell /bin/bash app \
     && chmod -R 755 /app
 
 # Create directory for database if it doesn't exist
-RUN mkdir -p /app && chown app:app /app
+RUN mkdir -p /app/data && chown app:app /app/data
 
 USER app
 
