@@ -1,6 +1,8 @@
 # Git
 .git
 .gitignore
+README.md
+DEPLOYMENT.md
 
 # Python
 __pycache__
@@ -62,15 +64,9 @@ Dockerfile
 docker-compose.yml
 .dockerignore
 
-# Documentation
-README.md
-DEPLOYMENT.md
-
 # Deployment files
 Procfile
 runtime.txt
 
-# Development files
-deploy.py
-migrate_db.py
-init_db.py
+# Documentation
+*.md

@@ -12,54 +12,55 @@ A comprehensive web application for pet sitting services built with Flask, featu
 - **Database**: SQLite with SQLAlchemy ORM
 - **Security**: Password hashing, session management, and CSRF protection
 
-## 🚀 Quick Start
+## � Docker Deployment (Recommended)
 
-### Prerequisites
-- Python 3.8 or higher
-- Git
+### Quick Docker Setup
 
-### Installation
+1. **Ensure Docker is installed** on your system
 
-1. **Clone the repository**
+2. **Clone and setup**:
    ```bash
    git clone <your-repo-url>
    cd petsittingsite
-   ```
-
-2. **Create virtual environment**
-   ```bash
-   python -m venv venv
-   # Windows:
-   venv\Scripts\activate
-   # macOS/Linux:
-   source venv/bin/activate
-   ```
-
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Setup environment**
-   ```bash
    cp .env.example .env
    # Edit .env with your configuration
    ```
 
-5. **Initialize database**
+3. **Deploy with Docker**:
    ```bash
-   python deploy.py init-db
+   # Using the deployment script (Linux/Mac):
+   ./docker-deploy.sh
+
+   # Or manually:
+   docker-compose build
+   docker-compose up -d
    ```
 
-6. **Run the application**
+4. **Initialize database**:
    ```bash
-   python deploy.py dev
+   docker-compose exec web python deploy.py init-db
    ```
 
-7. **Open in browser**
-   ```
-   http://localhost:5000
-   ```
+5. **Access your application**:
+   - **Local**: http://localhost
+   - **Health check**: http://localhost/health
+
+### Docker Commands
+
+```bash
+# View logs
+docker-compose logs -f
+
+# Stop application
+docker-compose down
+
+# Rebuild after changes
+docker-compose build --no-cache
+docker-compose up -d
+
+# Access container shell
+docker-compose exec web bash
+```
 
 ## 📁 Project Structure
 
