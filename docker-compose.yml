@@ -11,9 +11,9 @@ services:
       - SQLALCHEMY_DATABASE_URI=sqlite:///app/users.db
       - BASE_HOURLY_RATE=15.0
     volumes:
-      - ./users.db:/app/users.db
-      - ./static:/app/static
-      - ./templates:/app/templates
+      - pet_sitting_data:/app
+      - ./static:/app/static:ro
+      - ./templates:/app/templates:ro
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
@@ -21,3 +21,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+
+volumes:
+  pet_sitting_data:

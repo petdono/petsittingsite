@@ -7,6 +7,9 @@ Run this from within the container to initialize the database
 import os
 import sys
 
+# Ensure we're in the right directory
+os.chdir('/app')
+
 # Add current directory to path so we can import app
 sys.path.insert(0, '/app')
 
