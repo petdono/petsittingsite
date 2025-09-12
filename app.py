@@ -6,10 +6,13 @@ from datetime import datetime
 import json
 import os
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your-secret-key-here'  # Change this to a secure secret key
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
-app.config['BASE_HOURLY_RATE'] = 15.0  # Base hourly rate for pet sitting
+app = Flask(__name__, 
+            template_folder=os.path.join(os.path.dirname(__file__), 'templates'),
+            static_folder=os.path.join(os.path.dirname(__file__), 'static'))
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-here')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI', 'sqlite:///app/users.db')
+app.config['BASE_HOURLY_RATE'] = float(os.environ.get('BASE_HOURLY_RATE', '15.0'))
+app.config['FLASK_ENV'] = os.environ.get('FLASK_ENV', 'production')
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
@@ -477,8 +480,18 @@ def ensure_admin_user():
         db.session.commit()
 
 with app.app_context():
-    db.create_all()
-    ensure_admin_user()
+    # Only create tables if they don't exist (for development)
+    try:
+        db.create_all()
+        ensure_admin_user()
+    except Exception as e:
+        # Tables might already exist, skip creation
+        print(f"Database tables already exist or error occurred: {e}")
+        # Still ensure admin user exists
+        try:
+            ensure_admin_user()
+        except Exception as admin_error:
+            print(f"Admin user setup error: {admin_error}")
 
 @app.route('/admin/toggle-admin-user', methods=['POST'])
 @login_required

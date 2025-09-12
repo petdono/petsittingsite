@@ -112,7 +112,7 @@ volumes:
 # In Portainer, go to Containers
 # Click on your web container
 # Go to Console
-# Run: python deploy.py init-db
+# Run: python init_db.py
 ```
 
 ### Access Your Application

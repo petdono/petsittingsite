@@ -22,7 +22,7 @@ def run_development():
 def run_production():
     """Run in production mode with gunicorn"""
     print("🚀 Starting production server with gunicorn...")
-    os.system("gunicorn --bind 0.0.0.0:8000 --workers 3 app:app")
+    os.system("gunicorn --bind 0.0.0.0:5000 --workers 3 app:app")
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
@@ -43,4 +43,4 @@ if __name__ == "__main__":
         print("  python deploy.py dev       # Run development server")
         print("  python deploy.py prod      # Run production server")
         print("\nFor production deployment, use:")
-        print("  gunicorn --bind 0.0.0.0:8000 --workers 3 app:app")
+        print("  gunicorn --bind 0.0.0.0:5000 --workers 3 app:app")
