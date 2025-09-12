@@ -1,16 +1,12 @@
 ﻿#!/usr/bin/env python3
 """
-Database initialization script for Docker container
-Run this from within the container to initialize the database
+Database initialization script
 """
 
 import os
 import sys
 
-# Ensure we're in the right directory
-os.chdir('/app')
-
-# Add current directory to path so we can import app
+# Add current directory to path
 sys.path.insert(0, '/app')
 
 from app import app, db
@@ -19,13 +15,11 @@ def init_db():
     """Initialize the database"""
     with app.app_context():
         print("Creating database tables...")
-        # Ensure data directory exists
-        os.makedirs('/app/data', exist_ok=True)
         try:
             db.create_all()
             print("✅ Database tables created successfully!")
         except Exception as e:
-            print(f"⚠️  Database tables might already exist: {e}")
+            print(f"⚠️  Database error: {e}")
 
         # Ensure admin user exists
         try:

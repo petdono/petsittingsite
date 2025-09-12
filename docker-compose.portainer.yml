@@ -6,12 +6,10 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - SECRET_KEY=your-super-secret-key-change-this-in-production
+      - SECRET_KEY=dev-key-change-later
       - FLASK_ENV=production
-      - SQLALCHEMY_DATABASE_URI=sqlite:////app/data/users.db
+      - SQLALCHEMY_DATABASE_URI=sqlite:///app/users.db
       - BASE_HOURLY_RATE=15.0
-    volumes:
-      - pet_sitting_data:/app
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
@@ -19,6 +17,3 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-
-volumes:
-  pet_sitting_data:

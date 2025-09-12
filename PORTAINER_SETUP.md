@@ -59,7 +59,7 @@ docker run -d \
 
 4. **Environment Variables**:
    ```
-   SECRET_KEY=your-super-secret-key-here-change-this
+   SECRET_KEY=dev-key-change-later
    FLASK_ENV=production
    SQLALCHEMY_DATABASE_URI=sqlite:///app/users.db
    BASE_HOURLY_RATE=15.0
@@ -87,12 +87,10 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - SECRET_KEY=your-super-secret-key-here-change-this
+      - SECRET_KEY=dev-key-change-later
       - FLASK_ENV=production
       - SQLALCHEMY_DATABASE_URI=sqlite:///app/users.db
       - BASE_HOURLY_RATE=15.0
-    volumes:
-      - pet_sitting_data:/app
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
@@ -100,9 +98,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-
-volumes:
-  pet_sitting_data:
 ```
 
 ## 🔧 Post-Deployment Setup
