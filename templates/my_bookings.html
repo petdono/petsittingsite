@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+
+{% block title %}My Bookings{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>My Bookings</h2>
+    {% if bookings %}
+    <div class="booking-filters mb-4">
+        <button class="btn btn-outline-primary filter-btn active" data-status="all">All</button>
+        <button class="btn btn-outline-primary filter-btn" data-status="pending">Pending</button>
+        <button class="btn btn-outline-primary filter-btn" data-status="approved">Approved</button>
+        <button class="btn btn-outline-primary filter-btn" data-status="in_progress">In Progress</button>
+        <button class="btn btn-outline-primary filter-btn" data-status="completed">Completed</button>
+        <button class="btn btn-outline-danger filter-btn" data-status="denied">Denied</button>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Actions</th>
+                    <th>Booking Name</th>
+                    <th>Date & Time</th>
+                    <th>Duration</th>
+                    <th>Animals</th>
+                    <th>Total Cost</th>
+                    <th>Status</th>
+                    <th>Sale Applied</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                <tr class="booking-row" data-status="{{ booking.status }}">
+                    <td>
+                        {% if booking.status != 'completed' %}
+                        <button class="btn btn-sm btn-danger delete-btn"
+                                data-booking-id="{{ booking.id }}"
+                                data-booking-name="{{ booking.booking_name }}"
+                                title="Cancel Booking">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                        {% endif %}
+                    </td>
+                    <td>{{ booking.booking_name }}</td>
+                    <td>{{ booking.date.strftime('%Y-%m-%d') }} at {{ booking.start_time.strftime('%H:%M') }}</td>
+                    <td>{{ booking.duration_hours }} hours</td>
+                    <td>
+                        {% if booking.selected_animals_list %}
+                            {% for animal in booking.selected_animals_list %}
+                                <div class="mb-1">
+                                    <strong class="pet-name-link" 
+                                           data-animal-id="{{ animal.id }}"
+                                           data-animal-name="{{ animal.name }}"
+                                           data-animal-type="{{ animal.animal_type }}"
+                                           data-breed="{{ animal.breed }}"
+                                           data-age="{{ animal.age or '' }}"
+                                           data-special-needs="{{ animal.special_needs or '' }}"
+                                           data-medical-info="{{ animal.medical_info or '' }}"
+                                           data-behavior="{{ animal.behavior or '' }}"
+                                           style="cursor: pointer; text-decoration: underline;">
+                                        {{ animal.name }}
+                                    </strong>
+                                    <br>
+                                    <small class="text-muted">{{ animal.animal_type|title }} - {{ animal.breed }}{% if animal.age %} ({{ animal.age }}y){% endif %}</small>
+                                    {% if animal.special_needs %}
+                                    <br><small class="text-warning"><i class="fas fa-exclamation-triangle"></i></small>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <em class="text-muted">No animals selected</em>
+                        {% endif %}
+                    </td>
+                    <td>${{ "%.2f"|format(booking.total_cost) }}</td>
+                    <td>
+                        <span class="badge status-{{ booking.status }}">
+                            {{ booking.status.replace('_', ' ').title() }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if booking.sale %}
+                            {{ booking.sale.name }}
+                        {% else %}
+                            No sale applied
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p>You don't have any bookings yet.</p>
+    <a href="{{ url_for('book_session') }}" class="btn btn-primary">Book a Session</a>
+    {% endif %}
+</div>
+
+<!-- Pet Information Modal -->
+<div class="modal fade" id="petInfoModal" tabindex="-1" role="dialog" aria-labelledby="petInfoModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="petInfoModalLabel">
+                    <i class="fas fa-paw text-primary me-2"></i>
+                    <span id="petModalName"></span>
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-primary mb-3">Basic Information</h6>
+                        <p><strong>Type:</strong> <span id="petModalType"></span></p>
+                        <p><strong>Breed:</strong> <span id="petModalBreed"></span></p>
+                        <p><strong>Age:</strong> <span id="petModalAge"></span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-warning mb-3">Special Care</h6>
+                        <p><strong>Special Needs:</strong> <span id="petModalSpecialNeeds"></span></p>
+                        <p><strong>Medical Info:</strong> <span id="petModalMedical"></span></p>
+                        <p><strong>Behavior:</strong> <span id="petModalBehavior"></span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Cancel Booking</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to cancel your booking "<strong id="deleteBookingName"></strong>"?</p>
+                <p class="text-warning"><small>This action cannot be undone. If you need to reschedule, please create a new booking.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Keep Booking</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Cancel Booking</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Filter bookings
+document.querySelectorAll('.filter-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        // Update active button
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        this.classList.add('active');
+
+        // Filter rows
+        const status = this.dataset.status;
+        document.querySelectorAll('.booking-row').forEach(row => {
+            if (status === 'all' || row.dataset.status === status) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+});
+
+// Delete modal handling
+document.querySelectorAll('.delete-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const bookingId = this.dataset.bookingId;
+        const bookingName = this.dataset.bookingName;
+
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        document.getElementById('deleteBookingName').textContent = bookingName;
+        document.getElementById('deleteForm').action = `/delete-booking/${bookingId}`;
+        deleteModal.show();
+    });
+});
+
+// Pet information modal handling
+document.querySelectorAll('.pet-name-link').forEach(link => {
+    link.addEventListener('click', function() {
+        const animalName = this.dataset.animalName;
+        const animalType = this.dataset.animalType;
+        const breed = this.dataset.breed;
+        const age = this.dataset.age;
+        const specialNeeds = this.dataset.specialNeeds;
+        const medicalInfo = this.dataset.medicalInfo;
+        const behavior = this.dataset.behavior;
+
+        const petModal = new bootstrap.Modal(document.getElementById('petInfoModal'));
+        
+        // Populate modal with pet information
+        document.getElementById('petModalName').textContent = animalName;
+        document.getElementById('petModalType').textContent = animalType.charAt(0).toUpperCase() + animalType.slice(1);
+        document.getElementById('petModalBreed').textContent = breed || 'Not specified';
+        document.getElementById('petModalAge').textContent = age ? `${age} years old` : 'Not specified';
+        document.getElementById('petModalSpecialNeeds').textContent = specialNeeds || 'None';
+        document.getElementById('petModalMedical').textContent = medicalInfo || 'None';
+        document.getElementById('petModalBehavior').textContent = behavior || 'Not specified';
+        
+        petModal.show();
+    });
+});
+</script>
+{% endblock %}

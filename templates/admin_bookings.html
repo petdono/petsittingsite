@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Bookings{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Booking Management</h2>
+    {% if bookings %}
+    <div class="booking-filters mb-4">
+        <button class="btn btn-outline-primary filter-btn active" data-status="all">All</button>
+        <button class="btn btn-outline-primary filter-btn" data-status="pending">Pending</button>
+        <button class="btn btn-outline-primary filter-btn" data-status="approved">Approved</button>
+        <button class="btn btn-outline-primary filter-btn" data-status="in_progress">In Progress</button>
+        <button class="btn btn-outline-primary filter-btn" data-status="completed">Completed</button>
+        <button class="btn btn-outline-danger filter-btn" data-status="denied">Denied</button>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 120px;">Actions</th>
+                    <th style="width: 100px;">Status</th>
+                    <th>Booking</th>
+                    <th style="width: 120px;">Client</th>
+                    <th style="width: 100px;">Phone</th>
+                    <th style="width: 140px;">Date & Time</th>
+                    <th style="width: 80px;">Duration</th>
+                    <th style="width: 150px;">Dogs</th>
+                    <th style="width: 80px;">Cost</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                <tr class="booking-row" data-status="{{ booking.status }}">
+                    <td>
+                        <button class="btn btn-sm btn-primary notes-btn me-1"
+                                data-booking-id="{{ booking.id }}"
+                                data-notes="{{ booking.admin_notes or '' }}"
+                                data-action-url="{{ url_for('update_booking', booking_id=booking.id) }}"
+                                title="Edit Admin Notes">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        {% if booking.status != 'completed' %}
+                        <button class="btn btn-sm btn-danger delete-btn"
+                                data-booking-id="{{ booking.id }}"
+                                data-booking-name="{{ booking.booking_name }}"
+                                title="Delete Booking">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <form action="{{ url_for('update_booking', booking_id=booking.id) }}" method="POST" class="status-form">
+                            <input type="hidden" name="action" value="status">
+                            <select name="status" class="form-control-sm" onchange="this.form.submit()" style="width: 100px; font-size: 0.8rem;">
+                                <option value="pending" {% if booking.status == 'pending' %}selected{% endif %}>Pending</option>
+                                <option value="approved" {% if booking.status == 'approved' %}selected{% endif %}>Approved</option>
+                                <option value="in_progress" {% if booking.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                                <option value="completed" {% if booking.status == 'completed' %}selected{% endif %}>Completed</option>
+                                <option value="denied" {% if booking.status == 'denied' %}selected{% endif %}>Denied</option>
+                            </select>
+                        </form>
+                    </td>
+                    <td>
+                        <div class="fw-bold text-truncate" style="max-width: 200px;" title="{{ booking.booking_name }}">
+                            {{ booking.booking_name }}
+                        </div>
+                        {% if booking.user_notes %}
+                        <div class="small text-muted mt-1" style="max-width: 200px;" title="{{ booking.user_notes }}">
+                            <i class="fas fa-sticky-note text-info me-1"></i>{{ booking.user_notes[:30] }}{% if booking.user_notes|length > 30 %}...{% endif %}
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td class="text-truncate" style="max-width: 120px;" title="{{ booking.user.username }}">
+                        {{ booking.user.username }}
+                    </td>
+                    <td class="small">
+                        {{ booking.phone_number }}
+                    </td>
+                    <td class="small">
+                        <div>{{ booking.date.strftime('%m/%d/%y') }}</div>
+                        <div class="text-muted">{{ booking.start_time.strftime('%H:%M') }}</div>
+                    </td>
+                    <td class="text-center">
+                        {{ booking.duration_hours }}h
+                    </td>
+                    <td class="small">
+                        {% if booking.selected_animals_list %}
+                            {% for animal in booking.selected_animals_list %}
+                                <div class="mb-1">
+                                    <strong class="pet-name-link" 
+                                           data-animal-id="{{ animal.id }}"
+                                           data-animal-name="{{ animal.name }}"
+                                           data-animal-type="{{ animal.animal_type }}"
+                                           data-breed="{{ animal.breed }}"
+                                           data-age="{{ animal.age or '' }}"
+                                           data-special-needs="{{ animal.special_needs or '' }}"
+                                           data-medical-info="{{ animal.medical_info or '' }}"
+                                           data-behavior="{{ animal.behavior or '' }}"
+                                           style="cursor: pointer; text-decoration: underline;">
+                                        {{ animal.name }}
+                                    </strong>
+                                    <br>
+                                    <small class="text-muted">{{ animal.animal_type|title }} - {{ animal.breed }}{% if animal.age %} ({{ animal.age }}y){% endif %}</small>
+                                    {% if animal.special_needs %}
+                                    <br><small class="text-warning"><i class="fas fa-exclamation-triangle"></i></small>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <em class="text-muted">No animals selected</em>
+                        {% endif %}
+                    </td>
+                    <td class="fw-bold text-success">
+                        ${{ "%.0f"|format(booking.total_cost) }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p>No bookings found.</p>
+    {% endif %}
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the booking "<strong id="deleteBookingName"></strong>"?</p>
+                <p class="text-danger"><small>This action cannot be undone.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Delete Booking</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pet Information Modal -->
+<div class="modal fade" id="petInfoModal" tabindex="-1" role="dialog" aria-labelledby="petInfoModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="petInfoModalLabel">
+                    <i class="fas fa-paw text-primary me-2"></i>
+                    <span id="petModalName"></span>
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-primary mb-3">Basic Information</h6>
+                        <p><strong>Type:</strong> <span id="petModalType"></span></p>
+                        <p><strong>Breed:</strong> <span id="petModalBreed"></span></p>
+                        <p><strong>Age:</strong> <span id="petModalAge"></span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-warning mb-3">Special Care</h6>
+                        <p><strong>Special Needs:</strong> <span id="petModalSpecialNeeds"></span></p>
+                        <p><strong>Medical Info:</strong> <span id="petModalMedical"></span></p>
+                        <p><strong>Behavior:</strong> <span id="petModalBehavior"></span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Notes Modal -->
+<div class="modal fade" id="notesModal" tabindex="-1" role="dialog" aria-labelledby="notesModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="notesModalLabel">Admin Notes</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="notesForm" method="POST">
+                <div class="modal-body">
+                    <input type="hidden" name="action" value="notes">
+                    <div class="form-group">
+                        <label for="notes">Notes:</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="4"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Notes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Filter bookings
+document.querySelectorAll('.filter-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        // Update active button
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        this.classList.add('active');
+
+        // Filter rows
+        const status = this.dataset.status;
+        document.querySelectorAll('.booking-row').forEach(row => {
+            if (status === 'all' || row.dataset.status === status) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+});
+
+// Notes modal handling
+document.querySelectorAll('.notes-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const bookingId = this.dataset.bookingId;
+        const notes = this.dataset.notes;
+        const actionUrl = this.dataset.actionUrl;
+
+        const notesModal = new bootstrap.Modal(document.getElementById('notesModal'));
+        document.getElementById('notes').value = notes;
+        document.getElementById('notesForm').action = actionUrl;
+        notesModal.show();
+    });
+});
+
+// Delete modal handling
+document.querySelectorAll('.delete-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const bookingId = this.dataset.bookingId;
+        const bookingName = this.dataset.bookingName;
+
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        document.getElementById('deleteBookingName').textContent = bookingName;
+        document.getElementById('deleteForm').action = `/delete-booking/${bookingId}`;
+        deleteModal.show();
+    });
+});
+
+// Pet information modal handling
+document.querySelectorAll('.pet-name-link').forEach(link => {
+    link.addEventListener('click', function() {
+        const animalName = this.dataset.animalName;
+        const animalType = this.dataset.animalType;
+        const breed = this.dataset.breed;
+        const age = this.dataset.age;
+        const specialNeeds = this.dataset.specialNeeds;
+        const medicalInfo = this.dataset.medicalInfo;
+        const behavior = this.dataset.behavior;
+
+        const petModal = new bootstrap.Modal(document.getElementById('petInfoModal'));
+        
+        // Populate modal with pet information
+        document.getElementById('petModalName').textContent = animalName;
+        document.getElementById('petModalType').textContent = animalType.charAt(0).toUpperCase() + animalType.slice(1);
+        document.getElementById('petModalBreed').textContent = breed || 'Not specified';
+        document.getElementById('petModalAge').textContent = age ? `${age} years old` : 'Not specified';
+        document.getElementById('petModalSpecialNeeds').textContent = specialNeeds || 'None';
+        document.getElementById('petModalMedical').textContent = medicalInfo || 'None';
+        document.getElementById('petModalBehavior').textContent = behavior || 'Not specified';
+        
+        petModal.show();
+    });
+});
+
+// Apply status colors
+document.querySelectorAll('.status-select').forEach(select => {
+    const updateSelectColor = () => {
+        const status = select.value;
+        select.className = `form-control status-select status-${status}`;
+    };
+    select.addEventListener('change', updateSelectColor);
+    updateSelectColor();
+});
+</script>
+{% endblock %}

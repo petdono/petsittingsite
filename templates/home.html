@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+{% if active_sale %}
+<div class="sale-banner shadow-sm" style="background-color: {{ active_sale.color }}">
+    <div class="sale-banner-content text-center py-3">
+        <h2 class="display-6 mb-2">{{ active_sale.name }}</h2>
+        <p class="sale-text fs-4 mb-2">Get {{ active_sale.discount_percentage }}% off your next booking!</p>
+        <p class="price-text mb-0">
+            <span class="regular-price text-decoration-line-through">${{ base_rate }}/hour</span>
+            <span class="sale-price fs-3 ms-2">${{ "%.2f"|format(base_rate * (1 - active_sale.discount_percentage/100)) }}/hour</span>
+        </p>
+    </div>
+</div>
+{% endif %}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <h1 class="display-4 mb-4">Welcome to TC Pet Sitting</h1>
+            {% if current_user.is_authenticated %}
+                <div class="card shadow-sm">
+                    <div class="card-body p-5">
+                        <h2 class="card-title mb-4">Hello, {{ current_user.username }}!</h2>
+                        <p class="card-text fs-5 mb-4">Welcome back to the TrueCare online portal.</p>
+                        <div class="d-grid gap-3 d-md-flex justify-content-center">
+                            <a href="{{ url_for('book_session') }}" class="btn btn-primary btn-lg px-4">
+                                <i class="fas fa-calendar-plus me-2"></i>Book a Session
+                            </a>
+                            <a href="{{ url_for('my_bookings') }}" class="btn btn-outline-primary btn-lg px-4">
+                                <i class="fas fa-list me-2"></i>My Bookings
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="card shadow-sm">
+                    <div class="card-body p-5">
+                        <h2 class="card-title mb-4">Join Our Community</h2>
+                        <p class="card-text fs-5 mb-4">Need a pet sitter? Need your dog walked? We got you.</p>
+                        <div class="d-grid gap-3 d-md-flex justify-content-center">
+                            <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg px-4">Login</a>
+                            <a href="{{ url_for('register') }}" class="btn btn-outline-primary btn-lg px-4">Register</a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- 3 Card Section -->
+<div class="row mt-5 justify-content-center">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body text-center">
+                <h3 class="card-title">Quality Service</h3>
+                <p class="card-text">When you book, we send a sitter that is experienced in your specific pet type.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body text-center">
+                <h3 class="card-title">Rebookable</h3>
+                <p class="card-text">We try to match you with the same sitter for all future bookings.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body text-center">
+                <h3 class="card-title">Special Requests</h3>
+                <p class="card-text">We listen to all special care requests, including feeding, medication, exercise needs, and more.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+<footer class="bg-dark text-center text-white py-4 mt-5 rounded">
+    <div class="container">
+        <p class="mb-2">&copy; {{ now().year }} TC Pet Sitting</p>
+        <a href="/legal" class="btn btn-outline-primary" target="_blank">View Legal Agreement</a>
+    </div>
+</footer>
+{% endblock %}

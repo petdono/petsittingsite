@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Dog Profile{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="d-flex align-items-center mb-4">
+        <a href="{{ url_for('my_dogs') }}" class="btn btn-outline-secondary me-3">
+            <i class="fas fa-arrow-left"></i> Back to My Dogs
+        </a>
+        <h2>Edit {{ dog.name }}'s Profile</h2>
+    </div>
+
+    <form method="POST" class="dog-form">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="name" class="form-label">Dog's Name *</label>
+                    <input type="text" class="form-control" id="name" name="name" required
+                           value="{{ dog.name }}" placeholder="Enter your dog's name">
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="breed" class="form-label">Breed *</label>
+                    <select class="form-control" id="breed" name="breed" required>
+                        <option value="">Select breed</option>
+                        <option value="Labrador Retriever" {% if dog.breed == 'Labrador Retriever' %}selected{% endif %}>Labrador Retriever</option>
+                        <option value="German Shepherd" {% if dog.breed == 'German Shepherd' %}selected{% endif %}>German Shepherd</option>
+                        <option value="Golden Retriever" {% if dog.breed == 'Golden Retriever' %}selected{% endif %}>Golden Retriever</option>
+                        <option value="Bulldog" {% if dog.breed == 'Bulldog' %}selected{% endif %}>Bulldog</option>
+                        <option value="Beagle" {% if dog.breed == 'Beagle' %}selected{% endif %}>Beagle</option>
+                        <option value="Poodle" {% if dog.breed == 'Poodle' %}selected{% endif %}>Poodle</option>
+                        <option value="Rottweiler" {% if dog.breed == 'Rottweiler' %}selected{% endif %}>Rottweiler</option>
+                        <option value="Yorkshire Terrier" {% if dog.breed == 'Yorkshire Terrier' %}selected{% endif %}>Yorkshire Terrier</option>
+                        <option value="Boxer" {% if dog.breed == 'Boxer' %}selected{% endif %}>Boxer</option>
+                        <option value="Dachshund" {% if dog.breed == 'Dachshund' %}selected{% endif %}>Dachshund</option>
+                        <option value="Siberian Husky" {% if dog.breed == 'Siberian Husky' %}selected{% endif %}>Siberian Husky</option>
+                        <option value="Great Dane" {% if dog.breed == 'Great Dane' %}selected{% endif %}>Great Dane</option>
+                        <option value="Chihuahua" {% if dog.breed == 'Chihuahua' %}selected{% endif %}>Chihuahua</option>
+                        <option value="Mixed Breed" {% if dog.breed == 'Mixed Breed' %}selected{% endif %}>Mixed Breed</option>
+                        <option value="Other" {% if dog.breed == 'Other' %}selected{% endif %}>Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="age" class="form-label">Age (years)</label>
+                    <input type="number" class="form-control" id="age" name="age" min="0" max="25"
+                           value="{{ dog.age or '' }}" placeholder="Enter age in years">
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="weight" class="form-label">Weight (lbs)</label>
+                    <input type="number" class="form-control" id="weight" name="weight" min="0" step="0.1"
+                           value="{{ dog.weight or '' }}" placeholder="Enter weight in pounds">
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="temperament" class="form-label">Temperament</label>
+                    <select class="form-control" id="temperament" name="temperament">
+                        <option value="">Select temperament</option>
+                        <option value="Friendly" {% if dog.temperament == 'Friendly' %}selected{% endif %}>Friendly</option>
+                        <option value="Shy" {% if dog.temperament == 'Shy' %}selected{% endif %}>Shy</option>
+                        <option value="Energetic" {% if dog.temperament == 'Energetic' %}selected{% endif %}>Energetic</option>
+                        <option value="Calm" {% if dog.temperament == 'Calm' %}selected{% endif %}>Calm</option>
+                        <option value="Protective" {% if dog.temperament == 'Protective' %}selected{% endif %}>Protective</option>
+                        <option value="Anxious" {% if dog.temperament == 'Anxious' %}selected{% endif %}>Anxious</option>
+                        <option value="Playful" {% if dog.temperament == 'Playful' %}selected{% endif %}>Playful</option>
+                        <option value="Independent" {% if dog.temperament == 'Independent' %}selected{% endif %}>Independent</option>
+                    </select>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="special_needs" class="form-label">Special Needs</label>
+                    <textarea class="form-control" id="special_needs" name="special_needs" rows="3"
+                              placeholder="Any special care instructions, dietary needs, or behavioral notes...">{{ dog.special_needs or '' }}</textarea>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="medical_conditions" class="form-label">Medical Conditions</label>
+                    <textarea class="form-control" id="medical_conditions" name="medical_conditions" rows="3"
+                              placeholder="Any medical conditions, allergies, medications, or health concerns...">{{ dog.medical_conditions or '' }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group mt-4">
+            <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-save"></i> Update Dog Profile
+            </button>
+            <a href="{{ url_for('my_dogs') }}" class="btn btn-outline-secondary btn-lg ms-2">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<style>
+.dog-form .form-label {
+    font-weight: 600;
+    color: #495057;
+}
+
+.dog-form .form-control {
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.dog-form .form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.dog-form textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+</style>
+{% endblock %}

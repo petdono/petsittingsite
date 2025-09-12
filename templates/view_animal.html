@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+
+{% block title %}{{ animal.name }}'s Profile{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div class="d-flex align-items-center">
+            <a href="{{ url_for('my_animals') }}" class="btn btn-outline-secondary me-3">
+                <i class="fas fa-arrow-left"></i> Back to My Animals
+            </a>
+            <div>
+                <h2 class="mb-1">{{ animal.name }}</h2>
+                <span class="badge bg-primary fs-6">{{ animal.animal_type|title }}</span>
+            </div>
+        </div>
+        <div>
+            <a href="{{ url_for('edit_animal', animal_id=animal.id) }}" class="btn btn-primary me-2">
+                <i class="fas fa-edit"></i> Edit Profile
+            </a>
+            <button class="btn btn-outline-danger" onclick="deleteAnimal({{ animal.id }}, '{{ animal.name }}')">
+                <i class="fas fa-trash"></i> Delete
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card profile-card">
+                <div class="card-body">
+                    <h4 class="card-title mb-4">Profile Information</h4>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="info-item mb-3">
+                                <label class="info-label">Name:</label>
+                                <span class="info-value">{{ animal.name }}</span>
+                            </div>
+
+                            <div class="info-item mb-3">
+                                <label class="info-label">Type:</label>
+                                <span class="info-value">{{ animal.animal_type|title }}</span>
+                            </div>
+
+                            <div class="info-item mb-3">
+                                <label class="info-label">Breed:</label>
+                                <span class="info-value">{{ animal.breed or 'Not specified' }}</span>
+                            </div>
+
+                            {% if animal.age %}
+                            <div class="info-item mb-3">
+                                <label class="info-label">Age:</label>
+                                <span class="info-value">{{ animal.age }} years old</span>
+                            </div>
+                            {% endif %}
+
+                            {% if animal.weight %}
+                            <div class="info-item mb-3">
+                                <label class="info-label">Weight:</label>
+                                <span class="info-value">{{ animal.weight }} lbs</span>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            {% if animal.temperament %}
+                            <div class="info-item mb-3">
+                                <label class="info-label">Temperament:</label>
+                                <span class="info-value">{{ animal.temperament }}</span>
+                            </div>
+                            {% endif %}
+
+                            <div class="info-item mb-3">
+                                <label class="info-label">Created:</label>
+                                <span class="info-value">{{ animal.created_at.strftime('%B %d, %Y') }}</span>
+                            </div>
+
+                            {% if animal.updated_at != animal.created_at %}
+                            <div class="info-item mb-3">
+                                <label class="info-label">Last Updated:</label>
+                                <span class="info-value">{{ animal.updated_at.strftime('%B %d, %Y') }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if animal.special_needs %}
+            <div class="card special-needs-card mt-4">
+                <div class="card-body">
+                    <h5 class="card-title text-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Special Needs
+                    </h5>
+                    <p class="mb-0">{{ animal.special_needs }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if animal.medical_conditions %}
+            <div class="card medical-card mt-4">
+                <div class="card-body">
+                    <h5 class="card-title text-danger">
+                        <i class="fas fa-heartbeat me-2"></i>Medical Conditions
+                    </h5>
+                    <p class="mb-0">{{ animal.medical_conditions }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-4">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Quick Stats</h5>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number">{{ animal.animal_type|title }}</div>
+                            <div class="stat-label">Type</div>
+                        </div>
+                        {% if animal.age %}
+                        <div class="stat-item">
+                            <div class="stat-number">{{ animal.age }}</div>
+                            <div class="stat-label">Years Old</div>
+                        </div>
+                        {% endif %}
+                        {% if animal.weight %}
+                        <div class="stat-item">
+                            <div class="stat-number">{{ animal.weight }}</div>
+                            <div class="stat-label">lbs</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card booking-history-card mt-4">
+                <div class="card-body">
+                    <h5 class="card-title">Recent Bookings</h5>
+                    {% set recent_bookings = animal.booking_associations | selectattr('booking.status', 'in', ['approved', 'in_progress', 'completed']) | list | sort(attribute='booking.date', reverse=True) %}
+                    {% if recent_bookings %}
+                        {% for booking_animal in recent_bookings[:5] %}
+                        <div class="booking-item mb-2 pb-2 border-bottom">
+                            <div class="small text-muted">{{ booking_animal.booking.date.strftime('%m/%d/%Y') }}</div>
+                            <div class="fw-bold">{{ booking_animal.booking.booking_name }}</div>
+                            <span class="badge bg-{{ 'success' if booking_animal.booking.status == 'completed' else 'primary' }} small">
+                                {{ booking_animal.booking.status|replace('_', ' ')|title }}
+                            </span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted small mb-0">No bookings yet</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Animal Profile</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong id="deleteAnimalName"></strong>'s profile? This action cannot be undone.</p>
+                <div class="alert alert-warning">
+                    <small>This will also remove this animal from any associated bookings.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Delete Profile</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function deleteAnimal(animalId, animalName) {
+    document.getElementById('deleteAnimalName').textContent = animalName;
+    document.getElementById('deleteForm').action = '/delete-animal/' + animalId;
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+</script>
+
+<style>
+.profile-card {
+    border: 1px solid var(--input-border);
+    background: var(--card-bg);
+}
+
+.info-item {
+    margin-bottom: 1rem;
+}
+
+.info-label {
+    display: block;
+    font-weight: 600;
+    color: var(--text-color);
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.info-value {
+    color: #cbd5e0;
+    font-size: 1rem;
+}
+
+.special-needs-card {
+    border-left: 4px solid #ffc107;
+    background: rgba(255, 193, 7, 0.1);
+}
+
+.medical-card {
+    border-left: 4px solid #dc3545;
+    background: rgba(220, 53, 69, 0.1);
+}
+
+.stats-card {
+    border: 1px solid var(--input-border);
+    background: var(--card-bg);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.stat-item {
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+}
+
+.stat-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.booking-history-card {
+    border: 1px solid var(--input-border);
+    background: var(--card-bg);
+}
+
+.booking-item {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.booking-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+</style>
+{% endblock %}
