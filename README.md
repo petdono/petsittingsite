@@ -22,7 +22,52 @@ python run.py
 ### 4. Access the Website
 Open your browser and go to: http://localhost:5000
 
-## 📁 Project Structure
+## � Docker Deployment
+
+### Quick Docker Setup
+
+1. **Build and run**:
+   ```bash
+   docker-compose up --build
+   ```
+
+2. **Initialize database** (in another terminal):
+   ```bash
+   docker-compose exec web python docker-init-db.py
+   ```
+
+3. **Access the application**:
+   - **Local**: http://localhost:5000
+   - **Health check**: http://localhost:5000/health
+
+### Docker Commands
+
+```bash
+# Start services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+
+# Rebuild after changes
+docker-compose up --build
+
+# Initialize database
+docker-compose exec web python docker-init-db.py
+```
+
+### Development with Docker
+
+For development with live reload:
+```bash
+# Use the override file for development
+docker-compose -f docker-compose.yml -f docker-compose.override.yml up --build
+```
+
+## �📁 Project Structure
 ```
 petsittingsite/
 ├── app.py              # Main Flask application
