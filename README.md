@@ -1,53 +1,62 @@
 # 🐱 Pet Sitting Website
 
-A comprehensive web application for pet sitting services built with Flask, featuring user authentication, booking management, animal profiles, and an admin panel.
+A simple Flask web application for pet sitting services.
 
-## ✨ Features
+## 🚀 Quick Start
 
-- **User Authentication**: Secure login/registration system
-- **Animal Profiles**: Manage detailed profiles for all pet types (dogs, cats, birds, etc.)
-- **Booking System**: Easy booking with animal selection and pricing
-- **Admin Panel**: Complete booking management with status updates and notes
-- **Responsive Design**: Modern dark theme with Bootstrap 5
-- **Database**: SQLite with SQLAlchemy ORM
-- **Security**: Password hashing, session management, and CSRF protection
-
-## � Docker Deployment (Recommended)
-
-### Quick Docker Setup
-
-1. **Ensure Docker is installed** on your system
-
-2. **Clone and setup**:
-   ```bash
-   git clone <your-repo-url>
-   cd petsittingsite
-   cp .env.example .env
-   # Edit .env with your configuration
-   ```
-
-3. **Deploy with Docker**:
-   ```bash
-   # Using the deployment script (Linux/Mac):
-   ./docker-deploy.sh
-
-   # Or manually:
-   docker-compose build
-   docker-compose up -d
-   ```
-
-4. **Initialize database**:
-   ```bash
-   docker-compose exec web python deploy.py init-db
-   ```
-
-5. **Access your application**:
-   - **Local**: http://localhost
-   - **Health check**: http://localhost/health
-
-### Docker Commands
-
+### 1. Install Dependencies
 ```bash
+pip install -r requirements.txt
+```
+
+### 2. Initialize Database
+```bash
+python init_db.py
+```
+
+### 3. Run the Application
+```bash
+python run.py
+```
+
+### 4. Access the Website
+Open your browser and go to: http://localhost:5000
+
+## 📁 Project Structure
+```
+petsittingsite/
+├── app.py              # Main Flask application
+├── run.py              # Simple run script
+├── init_db.py          # Database initialization
+├── requirements.txt    # Python dependencies
+├── templates/          # HTML templates
+├── static/            # CSS, JS, images
+└── users.db           # SQLite database (created automatically)
+```
+
+## 🛠️ Development
+
+- **Debug Mode**: Enabled by default
+- **Database**: SQLite (users.db)
+- **Port**: 5000
+- **Admin User**: Created automatically on first run
+
+## 🔧 Troubleshooting
+
+If you get database errors:
+```bash
+# Delete the database and recreate
+rm users.db
+python init_db.py
+```
+
+## 📝 Features
+
+- User registration and login
+- Pet sitting booking system
+- Admin panel for managing bookings
+- Responsive design with Bootstrap
+- SQLite database for data storage
 # View logs
 docker-compose logs -f
 

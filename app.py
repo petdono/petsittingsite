@@ -6,13 +6,13 @@ from datetime import datetime
 import json
 import os
 
-app = Flask(__name__, 
+app = Flask(__name__,
             template_folder=os.path.join(os.path.dirname(__file__), 'templates'),
             static_folder=os.path.join(os.path.dirname(__file__), 'static'))
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-here')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI', 'sqlite:///app/users.db')
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-key-change-later')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI', 'sqlite:///users.db')
 app.config['BASE_HOURLY_RATE'] = float(os.environ.get('BASE_HOURLY_RATE', '15.0'))
-app.config['FLASK_ENV'] = os.environ.get('FLASK_ENV', 'production')
+app.config['FLASK_ENV'] = os.environ.get('FLASK_ENV', 'development')
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
@@ -74,11 +74,13 @@ class Animal(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    # Relationship to booking associations with cascade delete
+    booking_associations = db.relationship('BookingAnimal', backref='animal', lazy=True, cascade='all, delete-orphan')
+
 class BookingAnimal(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     booking_id = db.Column(db.Integer, db.ForeignKey('booking.id'), nullable=False)
     animal_id = db.Column(db.Integer, db.ForeignKey('animal.id'), nullable=False)
-    animal = db.relationship('Animal', backref='booking_associations')
 
 class Ban(db.Model):
     id = db.Column(db.Integer, primary_key=True)
