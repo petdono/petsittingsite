@@ -8,7 +8,6 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     gcc \
     curl \
-    libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better caching
@@ -19,7 +18,7 @@ RUN pip install --no-cache-dir Flask==3.1.2 Werkzeug==3.1.3
 RUN pip install --no-cache-dir Flask-SQLAlchemy==3.0.5 Flask-Login==0.6.2
 RUN pip install --no-cache-dir SQLAlchemy==2.0.43
 RUN pip install --no-cache-dir python-dotenv==1.0.0 gunicorn==21.2.0
-RUN pip install --no-cache-dir psycopg2-binary==2.9.7 email-validator==2.1.0
+RUN pip install --no-cache-dir email-validator==2.2.0
 
 # Copy application code
 COPY . .
