@@ -1,5 +1,5 @@
-﻿# Use Python 3.13 slim image (latest stable version)
-FROM python:3.13-slim
+﻿# Use Python 3.13 full image (more dependencies pre-installed)
+FROM python:3.13
 
 # Set working directory
 WORKDIR /app
@@ -7,21 +7,19 @@ WORKDIR /app
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     gcc \
-    g++ \
     curl \
     libpq-dev \
-    build-essential \
-    python3-dev \
-    python3-setuptools \
-    libffi-dev \
-    libssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better caching
 COPY requirements.txt .
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Install Python dependencies in batches
+RUN pip install --no-cache-dir Flask==3.1.2 Werkzeug==3.1.3
+RUN pip install --no-cache-dir Flask-SQLAlchemy==3.0.5 Flask-Login==0.6.2
+RUN pip install --no-cache-dir SQLAlchemy==2.0.43
+RUN pip install --no-cache-dir python-dotenv==1.0.0 gunicorn==21.2.0
+RUN pip install --no-cache-dir psycopg2-binary==2.9.7 email-validator==2.1.0
 
 # Copy application code
 COPY . .
