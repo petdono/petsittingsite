@@ -1,4 +1,4 @@
-﻿# Use Python 3.13 full image (more dependencies pre-installed)
+﻿# Use Python 3.13RUN pip install --no-cache-dir Flask-SQLAlchemy==3.1.1 Flask-Login==0.7.0full image (more dependencies pre-installed)
 FROM python:3.13
 
 # Set working directory
