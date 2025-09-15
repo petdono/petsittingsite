@@ -1,9 +1,4 @@
-﻿# Use Python 3.# Install Python dependencies in batches
-RUN pip install --no-cache-dir Flask==2.3.3 Werkzeug==2.3.7
-RUN pip install --no-cache-dir Flask-SQLAlchemy==3.0.5 Flask-Login==0.6.2
-RUN pip install --no-cache-dir SQLAlchemy==2.0.23
-RUN pip install --no-cache-dir python-dotenv==1.0.0 gunicorn==21.2.0
-RUN pip install --no-cache-dir email-validator==2.1.0pip install --no-cache-dir Flask-SQLAlchemy==3.1.1 Flask-Login==0.7.0full image (more dependencies pre-installed)
+﻿# Use Python 3.13 full image (more dependencies pre-installed)
 FROM python:3.13
 
 # Set working directory
@@ -11,6 +6,8 @@ WORKDIR /app
 
 # Clear pip cache to ensure fresh installs
 RUN pip cache purge
+
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     gcc \
     curl \
@@ -20,11 +17,11 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 
 # Install Python dependencies in batches
-RUN pip install --no-cache-dir Flask==3.1.2 Werkzeug==3.1.3
+RUN pip install --no-cache-dir Flask==2.3.3 Werkzeug==2.3.7
 RUN pip install --no-cache-dir Flask-SQLAlchemy==3.0.5 Flask-Login==0.6.2
-RUN pip install --no-cache-dir SQLAlchemy==2.0.43
+RUN pip install --no-cache-dir SQLAlchemy==2.0.23
 RUN pip install --no-cache-dir python-dotenv==1.0.0 gunicorn==21.2.0
-RUN pip install --no-cache-dir email-validator==2.2.0
+RUN pip install --no-cache-dir email-validator==2.1.0
 
 # Copy application code
 COPY . .
