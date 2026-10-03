@@ -1,8 +1,8 @@
 # 🐱 Pet Sitting Website
 
-A simple Flask web application for pet sitting services.
+A simple Flask web application for pet sitting services built with AI. Was used for a while in production but it's pretty much orphaned now.
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Install Dependencies
 ```bash
